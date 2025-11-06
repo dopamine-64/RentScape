@@ -1,2 +1,2 @@
 # RentScape
-Frontend: HTML, CSS(Tailwind), Javascript(Vanilla) (optional) Backend: MySQL, Django
+Frontend: HTML, CSS(Bootstrap), Javascript(Vanilla) (optional) Backend: MySQL, Laravel
