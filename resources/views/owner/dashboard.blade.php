@@ -36,18 +36,26 @@
     .top-nav .nav-links {
         display: flex;
         align-items: center;
-        gap: 25px;
+        gap: 15px;
     }
 
-    .top-nav .nav-links a {
+    .top-nav .nav-links a, 
+    .top-nav .nav-links form button {
         color: #333;
         text-decoration: none;
         font-weight: 500;
         transition: 0.3s;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 6px;
     }
 
-    .top-nav .nav-links a:hover {
+    .top-nav .nav-links a:hover, 
+    .top-nav .nav-links form button:hover {
         color: #FF6B6B;
+        background: rgba(255, 107, 107, 0.2);
     }
 
     .top-nav .logout-btn {
@@ -133,33 +141,30 @@
         <a href="#">Applicants</a>
         <a href="#">Messages</a>
         <a href="#">Settings</a>
-        <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
 
-        <script>
-            document.getElementById('logoutBtn').addEventListener('click', function(e){
-                e.preventDefault();
-                fetch("{{ route('logout') }}", {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                        "Accept": "application/json",
-                        "Content-Type": "application/json"
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = "{{ route('login') }}"; // Redirect to login
-                    }
-                });
-            });
-        </script>
+        <!-- Role switch button for 'both' users -->
+        @if(Auth::user()->role === 'both')
+        <form action="{{ route('switch.role') }}" method="POST">
+            @csrf
+            @if(session('active_role') === 'owner')
+                <input type="hidden" name="role" value="tenant">
+                <button type="submit" class="btn-switch">Switch to Tenant</button>
+            @else
+                <input type="hidden" name="role" value="owner">
+                <button type="submit" class="btn-switch">Switch to Owner</button>
+            @endif
+        </form>
+        @endif
+
+        <!-- Logout button -->
+        <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
     </div>
 </div>
 
 <div class="main-content">
     <div class="header">
         <h1>Welcome, {{ Auth::user()->name }}!</h1>
-        <p>Role: <strong>{{ ucfirst(Auth::user()->role) }}</strong></p>
+        <p>Role: <strong>{{ ucfirst(session('active_role', Auth::user()->role)) }}</strong></p>
     </div>
 
     <div class="card-container">
@@ -183,4 +188,24 @@
 
 <!-- Remix Icon CDN -->
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
+
+<script>
+    // JS logout with fetch
+    document.getElementById('logoutBtn').addEventListener('click', function(e){
+        e.preventDefault();
+        fetch("{{ route('logout') }}", {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if(response.ok){
+                window.location.href = "{{ route('login') }}";
+            }
+        });
+    });
+</script>
 @endsection
