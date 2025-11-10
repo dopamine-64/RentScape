@@ -15,16 +15,18 @@ class LoginController extends Controller
      *
      * @return string
      */
-    protected function redirectTo()
-    {
+    protected function redirectTo() {
         $user = Auth::user();
 
-        if ($user->role === 'owner') {
-            return '/owner/dashboard';
+        // Default for both role users is Owner
+        if ($user->role === 'owner' || $user->role === 'both') {
+            session(['active_role' => 'owner']); // store in session
+            return '/dashboard';
         } elseif ($user->role === 'tenant') {
-            return '/tenant/dashboard';
+            session(['active_role' => 'tenant']);
+            return '/dashboard';
         } else {
-            return '/home'; // fallback for 'both' or unknown roles
+            return '/login';
         }
     }
 
