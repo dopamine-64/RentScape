@@ -75,6 +75,14 @@
             <div class="card-header">Welcome Back to Rentscape</div>
 
             <div class="card-body">
+
+                {{-- ✅ Success message after registration --}}
+                @if(session('success'))
+                    <div class="alert alert-success text-center" style="background: rgba(0, 255, 0, 0.2); color: #b6ffb6; border: none; border-radius: 10px;">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
 
