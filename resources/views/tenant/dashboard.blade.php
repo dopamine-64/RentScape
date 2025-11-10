@@ -6,7 +6,7 @@
         margin: 0;
         padding: 0;
         font-family: 'Poppins', sans-serif;
-        background: linear-gradient(135deg, #FFDEE9, #B5FFFC);
+        background: linear-gradient(135deg, #FFDEE9, #B5FFFC); /* Tenant dashboard colors */
         color: #333;
         min-height: 100vh;
     }
@@ -36,18 +36,26 @@
     .top-nav .nav-links {
         display: flex;
         align-items: center;
-        gap: 25px;
+        gap: 15px;
     }
 
-    .top-nav .nav-links a {
+    .top-nav .nav-links a,
+    .top-nav .nav-links form button {
         color: #333;
         text-decoration: none;
         font-weight: 500;
         transition: 0.3s;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 6px;
     }
 
-    .top-nav .nav-links a:hover {
+    .top-nav .nav-links a:hover,
+    .top-nav .nav-links form button:hover {
         color: #FF6B6B;
+        background: rgba(255, 107, 107, 0.2);
     }
 
     .top-nav .logout-btn {
@@ -133,6 +141,22 @@
         <a href="#">My Applications</a>
         <a href="#">Messages</a>
         <a href="#">Settings</a>
+
+        <!-- Role switch button for 'both' users -->
+        @if(Auth::user()->role === 'both')
+        <form action="{{ route('switch.role') }}" method="POST">
+            @csrf
+            @if(session('active_role') === 'owner')
+                <input type="hidden" name="role" value="tenant">
+                <button type="submit">Switch to Tenant</button>
+            @else
+                <input type="hidden" name="role" value="owner">
+                <button type="submit">Switch to Owner</button>
+            @endif
+        </form>
+        @endif
+
+        <!-- Logout -->
         <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
     </div>
 </div>
@@ -140,7 +164,8 @@
 <div class="main-content">
     <div class="header">
         <h1>Welcome, {{ Auth::user()->name }}!</h1>
-        <p>Role: <strong>{{ ucfirst(Auth::user()->role) }}</strong></p>
+        <!-- Active role displayed -->
+        <p>Role: <strong>{{ ucfirst(session('active_role', Auth::user()->role)) }}</strong></p>
     </div>
 
     <div class="card-container">
