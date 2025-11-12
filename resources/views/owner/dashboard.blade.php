@@ -27,10 +27,21 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-    .top-nav .brand {
+     .brand {
+        display: flex;
+        align-items: center;
+        gap: 7px;
         font-weight: bold;
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         color: #FF6B6B;
+    }
+
+    .brand img {
+        height: 42px;
+        width: 42px;
+        object-fit: contain;
+        vertical-align: middle;
+
     }
 
     .top-nav .nav-links {
@@ -145,7 +156,10 @@
 </style>
 
 <div class="top-nav">
-    <div class="brand">Rentscape</div>
+    <div class="brand">
+        <img src="/images/logo.png" alt="Logo">
+        RentScape
+    </div>
     <div class="nav-links">
         <a href="#">Dashboard</a>
         <a href="#">My Properties</a>
