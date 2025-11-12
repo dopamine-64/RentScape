@@ -6,7 +6,7 @@
         margin: 0;
         padding: 0;
         font-family: 'Poppins', sans-serif;
-        background: linear-gradient(135deg, #FFDEE9, #B5FFFC); /* Tenant dashboard colors */
+        background: linear-gradient(135deg, #FFDEE9, #B5FFFC); /* Owner dashboard colors */
         color: #333;
         min-height: 100vh;
     }
@@ -117,6 +117,17 @@
         margin-bottom: 15px;
     }
 
+    .card h3 {
+        margin-top: 10px;
+        font-weight: 600;
+    }
+
+    .card p {
+        font-size: 0.95rem;
+        margin-top: 5px;
+        opacity: 0.9;
+    }
+
     @media (max-width: 768px) {
         .card-container {
             grid-template-columns: 1fr;
@@ -168,6 +179,11 @@
     </div>
 
     <div class="card-container">
+        <div class="card">
+            <i class="ri-home-smile-line"></i>
+            <h3>Post Property</h3>
+            <p>Add a new property for rent with details and images.</p>
+        </div>
         <div class="card">
             <i class="ri-building-2-line"></i>
             <h3>Manage Properties</h3>
