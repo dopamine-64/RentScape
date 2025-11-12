@@ -6,7 +6,7 @@
         margin: 0;
         padding: 0;
         font-family: 'Poppins', sans-serif;
-        background: linear-gradient(135deg, #FFDEE9, #B5FFFC); /* Tenant dashboard colors */
+        background: linear-gradient(135deg, #FFDEE9, #B5FFFC);
         color: #333;
         min-height: 100vh;
     }
@@ -117,6 +117,17 @@
         margin-bottom: 15px;
     }
 
+    .card h3 {
+        margin-top: 10px;
+        font-weight: 600;
+    }
+
+    .card p {
+        font-size: 0.95rem;
+        margin-top: 5px;
+        opacity: 0.9;
+    }
+
     @media (max-width: 768px) {
         .card-container {
             grid-template-columns: 1fr;
@@ -134,10 +145,10 @@
 </style>
 
 <div class="top-nav">
-    <div class="brand">Rentscape</div>
+    <div class="brand">RentScape</div>
     <div class="nav-links">
         <a href="#">Dashboard</a>
-        <a href="#">Search Properties</a>
+        <a href="#">View Properties</a>
         <a href="#">My Applications</a>
         <a href="#">Messages</a>
         <a href="#">Settings</a>
@@ -164,25 +175,32 @@
 <div class="main-content">
     <div class="header">
         <h1>Welcome, {{ Auth::user()->name }}!</h1>
-        <!-- Active role displayed -->
         <p>Role: <strong>{{ ucfirst(session('active_role', Auth::user()->role)) }}</strong></p>
     </div>
 
     <div class="card-container">
         <div class="card">
+            <i class="ri-home-smile-line"></i>
+            <h3>View Properties</h3>
+            <p>Explore all available rental listings and apply easily.</p>
+        </div>
+        
+        <div class="card">
             <i class="ri-search-line"></i>
             <h3>Search Properties</h3>
             <p>Find available properties that match your needs.</p>
         </div>
+        
         <div class="card">
             <i class="ri-file-list-3-line"></i>
             <h3>My Applications</h3>
-            <p>Track all the properties you have applied for.</p>
+            <p>Track the status of your rental applications.</p>
         </div>
+
         <div class="card">
             <i class="ri-chat-4-line"></i>
             <h3>Messages</h3>
-            <p>Chat directly with property owners.</p>
+            <p>Stay in touch with property owners through direct messages.</p>
         </div>
     </div>
 </div>
