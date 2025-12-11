@@ -6,7 +6,7 @@ use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Tenant\TenantDashboardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\PropertyController; // Add this
+use App\Http\Controllers\PropertyController;
 
 Route::get('/', function () {
     return view('welcome');
