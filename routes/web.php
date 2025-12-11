@@ -6,6 +6,7 @@ use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Tenant\TenantDashboardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PropertyController; // Add this
 
 Route::get('/', function () {
     return view('welcome');
@@ -31,4 +32,16 @@ Route::middleware(['auth'])->group(function () {
 
     // Role switch route
     Route::post('/switch-role', [RoleController::class, 'switchRole'])->name('switch.role');
+
+    // ------------------------
+    // Post Property Routes
+    // ------------------------
+
+    // Show create property form
+    Route::get('/property/create', [PropertyController::class, 'create'])
+        ->name('property.create');
+
+    // Handle form submission
+    Route::post('/property/store', [PropertyController::class, 'store'])
+        ->name('property.store');
 });
