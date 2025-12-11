@@ -41,7 +41,6 @@
         width: 42px;
         object-fit: contain;
         vertical-align: middle;
-
     }
 
     .top-nav .nav-links {
@@ -161,13 +160,18 @@
         RentScape
     </div>
     <div class="nav-links">
-        <a href="#">Dashboard</a>
+        {{-- YOUR CHANGE: Updated route for Dashboard --}}
+        <a href="{{ route('owner.dashboard') }}">Dashboard</a>
+
+        {{-- YOUR CHANGE: Updated route for Post Property --}}
+        <a href="{{ route('property.create') }}">Post Property</a>
+
         <a href="#">My Properties</a>
         <a href="#">Applicants</a>
         <a href="#">Messages</a>
         <a href="#">Settings</a>
 
-        <!-- Role switch button for 'both' users -->
+        {{-- Role switch button for 'both' users --}}
         @if(Auth::user()->role === 'both')
         <form action="{{ route('switch.role') }}" method="POST">
             @csrf
@@ -181,7 +185,7 @@
         </form>
         @endif
 
-        <!-- Logout button -->
+        {{-- Logout button --}}
         <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
     </div>
 </div>
@@ -193,11 +197,15 @@
     </div>
 
     <div class="card-container">
-        <div class="card">
-            <i class="ri-home-smile-line"></i>
-            <h3>Post Property</h3>
-            <p>Add a new property for rent with details and images.</p>
-        </div>
+        
+        <a href="{{ route('property.create') }}" style="text-decoration: none;">
+            <div class="card">
+                <i class="ri-home-smile-line"></i>
+                <h3>Post Property</h3>
+                <p>Add a new property for rent with details and images.</p>
+            </div>
+        </a>
+
         <div class="card">
             <i class="ri-building-2-line"></i>
             <h3>Manage Properties</h3>
@@ -216,7 +224,7 @@
     </div>
 </div>
 
-<!-- Remix Icon CDN -->
+{{-- Remix Icon CDN --}}
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
 
 <script>
