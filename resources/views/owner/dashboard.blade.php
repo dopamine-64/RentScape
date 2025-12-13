@@ -138,6 +138,16 @@
         opacity: 0.9;
     }
 
+    .card-link {
+        display: block;
+        height: 100%;
+        text-decoration: none;
+    }
+
+    .card-height {
+        min-height: 280px;
+    }
+
     @media (max-width: 768px) {
         .card-container {
             grid-template-columns: 1fr;
@@ -198,8 +208,8 @@
 
     <div class="card-container">
         
-        <a href="{{ route('property.create') }}" style="text-decoration: none;">
-            <div class="card">
+       <a href="{{ route('property.create') }}" class="card-link">
+            <div class="card card-height">
                 <i class="ri-home-smile-line"></i>
                 <h3>Post Property</h3>
                 <p>Add a new property for rent with details and images.</p>
