@@ -44,4 +44,11 @@ Route::middleware(['auth'])->group(function () {
     // Handle form submission
     Route::post('/property/store', [PropertyController::class, 'store'])
         ->name('property.store');
+    Route::get('/properties', [PropertyController::class, 'index'])
+       ->name('properties.index');
+    // Owner deletes property
+    Route::delete('/properties/{id}', [PropertyController::class, 'destroy'])
+        ->name('property.destroy')
+        ->middleware('auth'); // only authenticated users
+
 });
