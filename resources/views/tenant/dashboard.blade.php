@@ -163,7 +163,7 @@
     </div>
     <div class="nav-links">
         <a href="#">Dashboard</a>
-        <a href="#">View Properties</a>
+        <a href="{{ route('properties.index') }}">View Properties</a>
         <a href="#">My Applications</a>
         <a href="#">Messages</a>
         <a href="#">Settings</a>
@@ -194,11 +194,12 @@
     </div>
 
     <div class="card-container">
-        <div class="card">
-            <i class="ri-home-smile-line"></i>
+        <!-- ✅ Tenant can view properties -->
+        <a href="{{ route('properties.index') }}" class="card">
+            <i class="ri-building-2-line"></i>
             <h3>View Properties</h3>
             <p>Explore all available rental listings and apply easily.</p>
-        </div>
+        </a>
         
         <div class="card">
             <i class="ri-search-line"></i>
