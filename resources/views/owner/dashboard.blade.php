@@ -215,6 +215,13 @@
                 <p>Add a new property for rent with details and images.</p>
             </div>
         </a>
+        <a href="{{ route('properties.index') }}" style="text-decoration: none;">
+            <div class="card">
+                <i class="ri-building-2-line"></i>
+                <h3>View Properties</h3>
+                <p>Browse and see all your listed properties.</p>
+            </div>
+        </a>
 
         <div class="card">
             <i class="ri-building-2-line"></i>
