@@ -27,7 +27,6 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-    /* ✅ Brand Section with Logo */
     .brand {
         display: flex;
         align-items: center;
@@ -42,7 +41,6 @@
         width: 42px;
         object-fit: contain;
         vertical-align: middle;
-
     }
 
     .top-nav .nav-links {
@@ -115,6 +113,8 @@
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         transition: 0.4s ease-in-out;
         cursor: pointer;
+        text-decoration: none;
+        color: inherit;
     }
 
     .card:hover {
@@ -168,7 +168,6 @@
         <a href="#">Messages</a>
         <a href="#">Settings</a>
 
-        <!-- Role switch button for 'both' users -->
         @if(Auth::user()->role === 'both')
         <form action="{{ route('switch.role') }}" method="POST">
             @csrf
@@ -182,7 +181,6 @@
         </form>
         @endif
 
-        <!-- Logout -->
         <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
     </div>
 </div>
@@ -200,13 +198,13 @@
             <h3>View Properties</h3>
             <p>Explore all available rental listings and apply easily.</p>
         </a>
-        
+
         <div class="card">
             <i class="ri-search-line"></i>
             <h3>Search Properties</h3>
             <p>Find available properties that match your needs.</p>
         </div>
-        
+
         <div class="card">
             <i class="ri-file-list-3-line"></i>
             <h3>My Applications</h3>
