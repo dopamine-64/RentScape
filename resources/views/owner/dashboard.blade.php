@@ -6,7 +6,7 @@
         margin: 0;
         padding: 0;
         font-family: 'Poppins', sans-serif;
-        background: linear-gradient(135deg, #FFDEE9, #B5FFFC); /* Owner dashboard colors */
+        background: linear-gradient(135deg, #FFDEE9, #B5FFFC);
         color: #333;
         min-height: 100vh;
     }
@@ -27,7 +27,7 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-     .brand {
+    .brand {
         display: flex;
         align-items: center;
         gap: 7px;
@@ -138,16 +138,6 @@
         opacity: 0.9;
     }
 
-    .card-link {
-        display: block;
-        height: 100%;
-        text-decoration: none;
-    }
-
-    .card-height {
-        min-height: 280px;
-    }
-
     @media (max-width: 768px) {
         .card-container {
             grid-template-columns: 1fr;
@@ -170,18 +160,14 @@
         RentScape
     </div>
     <div class="nav-links">
-        {{-- YOUR CHANGE: Updated route for Dashboard --}}
         <a href="{{ route('owner.dashboard') }}">Dashboard</a>
-
-        {{-- YOUR CHANGE: Updated route for Post Property --}}
         <a href="{{ route('property.create') }}">Post Property</a>
-        <a href="{{ route('properties.index') }}">View Properties</a> 
-        <a href="#">My Properties</a>
+        <a href="{{ route('properties.index') }}">View Properties</a> <!-- ✅ Added -->
+        <a href="#">Manage Properties</a>
         <a href="#">Applicants</a>
         <a href="#">Messages</a>
         <a href="#">Settings</a>
 
-        {{-- Role switch button for 'both' users --}}
         @if(Auth::user()->role === 'both')
         <form action="{{ route('switch.role') }}" method="POST">
             @csrf
@@ -195,7 +181,6 @@
         </form>
         @endif
 
-        {{-- Logout button --}}
         <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
     </div>
 </div>
@@ -207,14 +192,14 @@
     </div>
 
     <div class="card-container">
-        
-       <a href="{{ route('property.create') }}" class="card-link">
-            <div class="card card-height">
+        <a href="{{ route('property.create') }}" style="text-decoration: none;">
+            <div class="card">
                 <i class="ri-home-smile-line"></i>
                 <h3>Post Property</h3>
                 <p>Add a new property for rent with details and images.</p>
             </div>
         </a>
+
         <a href="{{ route('properties.index') }}" style="text-decoration: none;">
             <div class="card">
                 <i class="ri-building-2-line"></i>
@@ -226,13 +211,15 @@
         <div class="card">
             <i class="ri-building-2-line"></i>
             <h3>Manage Properties</h3>
-            <p>Post, edit, or remove your property listings.</p>
+            <p>Edit or remove your property listings.</p>
         </div>
+
         <div class="card">
             <i class="ri-user-settings-line"></i>
             <h3>Applicants</h3>
             <p>View and approve tenants who applied for your listings.</p>
         </div>
+
         <div class="card">
             <i class="ri-chat-4-line"></i>
             <h3>Chats</h3>
@@ -241,26 +228,24 @@
     </div>
 </div>
 
-{{-- Remix Icon CDN --}}
+<!-- Remix Icon CDN -->
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
 
 <script>
-    // JS logout with fetch
-    document.getElementById('logoutBtn').addEventListener('click', function(e){
-        e.preventDefault();
-        fetch("{{ route('logout') }}", {
-            method: "POST",
-            headers: {
-                "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            }
-        })
-        .then(response => {
-            if(response.ok){
-                window.location.href = "{{ route('login') }}";
-            }
-        });
+document.getElementById('logoutBtn').addEventListener('click', function(e){
+    e.preventDefault();
+    fetch("{{ route('logout') }}", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+    }).then(response => {
+        if(response.ok){
+            window.location.href = "{{ route('login') }}";
+        }
     });
+});
 </script>
 @endsection
