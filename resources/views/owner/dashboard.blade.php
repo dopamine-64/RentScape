@@ -175,7 +175,7 @@
 
         {{-- YOUR CHANGE: Updated route for Post Property --}}
         <a href="{{ route('property.create') }}">Post Property</a>
-
+        <a href="{{ route('properties.index') }}">View Properties</a> 
         <a href="#">My Properties</a>
         <a href="#">Applicants</a>
         <a href="#">Messages</a>
