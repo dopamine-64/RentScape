@@ -1,54 +1,83 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Owner\OwnerDashboardController;
-use App\Http\Controllers\Tenant\TenantDashboardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\PropertyController;
 
+use App\Http\Controllers\Owner\OwnerDashboardController;
+use App\Http\Controllers\Tenant\TenantDashboardController;
+
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminPropertyController;
+
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
+
+// Landing Page
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Authentication routes (login, register, etc.)
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
+
 Auth::routes();
 
-// Default home route
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes (Owner / Tenant / Both)
+|--------------------------------------------------------------------------
+*/
 
-// 🔒 Dashboard and Role Routes (only for logged-in users)
 Route::middleware(['auth'])->group(function () {
 
-    // Combined dashboard route (redirects based on role)
+    // Home (fallback)
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+    // Unified dashboard (decides owner / tenant / both)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Owner dashboard
-    Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
+    Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])
+        ->name('owner.dashboard');
 
     // Tenant dashboard
-    Route::get('/tenant/dashboard', [TenantDashboardController::class, 'index'])->name('tenant.dashboard');
+    Route::get('/tenant/dashboard', [TenantDashboardController::class, 'index'])
+        ->name('tenant.dashboard');
 
-    // Role switch route
-    Route::post('/switch-role', [RoleController::class, 'switchRole'])->name('switch.role');
-
-    // ------------------------
-    // Post Property Routes
-    // ------------------------
-
-    // Show create property form
-    Route::get('/property/create', [PropertyController::class, 'create'])
-        ->name('property.create');
-
-    // Handle form submission
-    Route::post('/property/store', [PropertyController::class, 'store'])
-        ->name('property.store');
-    Route::get('/properties', [PropertyController::class, 'index'])
-       ->name('properties.index');
-    // Owner deletes property
-    Route::delete('/properties/{id}', [PropertyController::class, 'destroy'])
-        ->name('property.destroy')
-        ->middleware('auth'); // only authenticated users
-
+    // Switch role (owner <-> tenant)
+    Route::post('/switch-role', [RoleController::class, 'switchRole'])
+        ->name('switch.role');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (is_admin = 1 ONLY)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'is_admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        // Admin dashboard
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+            ->name('dashboard');
+
+        // Approve property
+        Route::post('/property/{id}/approve', [AdminPropertyController::class, 'approve'])
+            ->name('property.approve');
+
+        // Future admin routes go here
+        // Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    });
