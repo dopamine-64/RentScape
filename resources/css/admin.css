@@ -1,0 +1,61 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #FFDEE9, #B5FFFC);
+}
+
+.admin-wrapper {
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+.admin-sidebar {
+    width: 260px;
+    background: rgba(40,40,40,0.95);
+    color: white;
+    padding: 2rem 1.5rem;
+}
+
+.admin-sidebar .logo {
+    color: #FF6B6B;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.admin-sidebar a {
+    display: block;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.admin-sidebar a:hover {
+    background: #FF6B6B;
+}
+
+/* CONTENT */
+.admin-content {
+    padding: 1.5rem;
+}
+
+.admin-topbar {
+    background: rgba(40,40,40,0.95);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+}
+
+/* CARDS */
+.admin-card {
+    background: rgba(40,40,40,0.95);
+    color: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.admin-card h5 {
+    color: #FF6B6B;
+}
