@@ -37,7 +37,7 @@
     }
 
     .btn-submit {
-        background: linear-gradient(90deg, #FF6B6B, #FFB56B);
+        background: linear-gradient(0deg, #FF6B6B, #FF6B6B);
         color: white;
         font-weight: bold;
         padding: 12px 20px;
@@ -46,7 +46,7 @@
     }
 
     .btn-submit:hover {
-        transform: scale(1.05);
+        transform: scale(1.02);
     }
 
     #image-preview {
@@ -168,11 +168,12 @@
                         <label class="form-label"><i class="ri-home-smile-line"></i> Property Type</label>
                         <select name="property_type" class="form-control">
                             <option value="" selected disabled>Select Type</option>
-                            <option value="apartment">Apartment</option>
-                            <option value="house">House</option>
-                            <option value="condo">Condo</option>
-                            <option value="studio">Studio</option>
-                            <option value="villa">Villa</option>
+                            <option value="Apartment">Apartment</option>
+                            <option value="Room">Room</option>
+                            <option value="Bulding">Building</option>
+                            <option value="Garage">Garage</option>
+                            <option value="Studio">Studio</option>
+                            <option value="Land">Land</option>
                         </select>
                     </div>
                 </div>
