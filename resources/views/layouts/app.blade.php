@@ -33,8 +33,7 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            
         }
 
         nav .brand {
@@ -162,19 +161,12 @@
         <img src="/images/logo.png" alt="Logo"> RentScape
     </div>
     <div class="nav-links">
-        @guest
-            <a href="{{ route('login') }}">Login</a>
-            <a href="{{ route('register') }}">Register</a>
+        @if(session('active_role') === 'owner')
+            <a href="{{ route('owner.dashboard') }}">Dashboard</a>
         @else
-            <a href="{{ route('home') }}">Dashboard</a>
-            <a href="#" class="logout-btn"
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-               Logout
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                @csrf
-            </form>
-        @endguest
+            <a href="{{ route('tenant.dashboard') }}">Dashboard</a>
+        @endif
+        <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
     </div>
 </nav>
 
@@ -182,7 +174,23 @@
     @yield('content')
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.getElementById('logoutBtn').addEventListener('click', function(e){
+    e.preventDefault();
+    fetch("{{ route('logout') }}", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+    }).then(response => {
+        if(response.ok){
+            window.location.href = "{{ route('login') }}";
+        }
+    });
+});
+</script>
 @yield('scripts')
 </body>
 </html>
