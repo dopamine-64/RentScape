@@ -138,6 +138,13 @@
         opacity: 0.9;
     }
 
+    .card-post-property {
+        min-height: 280px; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
     @media (max-width: 768px) {
         .card-container {
             grid-template-columns: 1fr;
@@ -162,8 +169,7 @@
     <div class="nav-links">
         <a href="{{ route('owner.dashboard') }}">Dashboard</a>
         <a href="{{ route('property.create') }}">Post Property</a>
-        <a href="{{ route('properties.index') }}">View Properties</a> <!-- ✅ Added -->
-        <a href="#">Manage Properties</a>
+        <a href="{{ route('properties.index') }}">Manage Properties</a> 
         <a href="#">Applicants</a>
         <a href="#">Messages</a>
         <a href="#">Settings</a>
@@ -193,7 +199,7 @@
 
     <div class="card-container">
         <a href="{{ route('property.create') }}" style="text-decoration: none;">
-            <div class="card">
+            <div class="card card-post-property">
                 <i class="ri-home-smile-line"></i>
                 <h3>Post Property</h3>
                 <p>Add a new property for rent with details and images.</p>
@@ -203,16 +209,10 @@
         <a href="{{ route('properties.index') }}" style="text-decoration: none;">
             <div class="card">
                 <i class="ri-building-2-line"></i>
-                <h3>View Properties</h3>
+                <h3>Manage Properties</h3>
                 <p>Browse and see all your listed properties.</p>
             </div>
         </a>
-
-        <div class="card">
-            <i class="ri-building-2-line"></i>
-            <h3>Manage Properties</h3>
-            <p>Edit or remove your property listings.</p>
-        </div>
 
         <div class="card">
             <i class="ri-user-settings-line"></i>
