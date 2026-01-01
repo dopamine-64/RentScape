@@ -5,6 +5,7 @@
         @foreach($properties as $property)
             <div class="property-card"
                  style="
+                    position: relative;
                     background:#fff;
                     padding:20px;
                     border-radius:12px;
@@ -14,6 +15,22 @@
                     justify-content:space-between;
                     transition:0.3s;
                  ">
+
+                {{-- STATUS BADGE --}}
+                <span style="
+                    position:absolute;
+                    top:12px;
+                    right:12px;
+                    padding:6px 14px;
+                    border-radius:20px;
+                    font-size:12px;
+                    font-weight:600;
+                    color:#fff;
+                    background:
+                        {{ $property->status === 'active' ? '#2ecc71' : ($property->status === 'pending' ? '#f39c12' : '#e74c3c') }};
+                ">
+                    {{ ucfirst($property->status) }}
+                </span>
 
                 {{-- Property Image --}}
                 @if($property->images->count())
@@ -33,7 +50,7 @@
                 {{-- ACTION BUTTONS --}}
                 <div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
 
-                    {{-- APPLY (Tenant only, not own property) --}}
+                    {{-- APPLY (Tenant only, not own property, property must not be inactive) --}}
                     @if(session('active_role') === 'tenant' && $property->user_id !== Auth::id())
                         @php
                             $applied = $property->bookingRequests->where('user_id', Auth::id())->first();
@@ -41,6 +58,8 @@
 
                         @if($applied)
                             <button class="btn btn-sm btn-success" disabled>Applied</button>
+                        @elseif($property->status === 'inactive')
+                            <button class="btn btn-sm btn-secondary" disabled>Closed</button>
                         @else
                             <form action="{{ route('booking.apply', $property->id) }}" method="POST">
                                 @csrf
