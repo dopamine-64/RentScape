@@ -59,15 +59,7 @@ class PropertyController extends Controller
     // =========================
     public function index(Request $request)
     {
-        $query = Property::with([
-            'images',
-            'bookingRequests' => function ($q) {
-                // Load ONLY current user's apply data
-                if (Auth::check()) {
-                    $q->where('user_id', Auth::id());
-                }
-            }
-        ]);
+        $query = Property::with(['images', 'bookingRequests']); // load all booking requests
 
         // 🔍 Case-insensitive smart search
         if ($request->filled('q')) {
@@ -75,9 +67,9 @@ class PropertyController extends Controller
 
             $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(title) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(city) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(address) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(property_type) LIKE ?', ["%{$search}%"]);
+                ->orWhereRaw('LOWER(city) LIKE ?', ["%{$search}%"])
+                ->orWhereRaw('LOWER(address) LIKE ?', ["%{$search}%"])
+                ->orWhereRaw('LOWER(property_type) LIKE ?', ["%{$search}%"]);
             });
         }
 
