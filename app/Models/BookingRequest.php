@@ -15,13 +15,11 @@ class BookingRequest extends Model
         'status',
     ];
 
-    // Link to property
     public function property()
     {
         return $this->belongsTo(Property::class);
     }
 
-    // Link to user
     public function user()
     {
         return $this->belongsTo(User::class);
