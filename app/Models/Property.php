@@ -9,34 +9,44 @@ class Property extends Model
 {
     use HasFactory;
 
-    // Table name (optional if it follows Laravel convention)
-    protected $table = 'properties';
-
-    // Mass assignable fields
+    // Add all the fields you want to fill via $fillable
     protected $fillable = [
-        'name',           // Property name/title
-        'address',        // Property address
-        'owner_id',       // Owner user id
-        'is_approved',    // Approval status (0 = pending, 1 = approved)
-        'price',          // Property price/rent
-        'description',    // Property description
-        // add other fields you have in the table
+        'title',
+        'description',
+        'price',
+        'address',
+        'city',
+        'neighborhood',
+        'property_type',
+        'bedrooms',
+        'bathrooms',
+        'area',
+        'available_date',
+        'lease_term',
+        'security_deposit',
+        'parking',
+        'laundry',
+        'pet_policy',
+        'furnished',
+        'contact_email',
+        'contact_phone',
+        'owner_id'
     ];
 
-    // Optional: cast fields
-    protected $casts = [
-        'is_approved' => 'boolean',
-    ];
+    // Relationship with images
+    public function images()
+    {
+        return $this->hasMany(PropertyImage::class);
+    }
+    // app/Models/Property.php
 
-    // Relationship: Owner of the property
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    // Relationship: Applications for this property
-    public function applications()
+    public function bookingRequests()
     {
-        return $this->hasMany(Application::class);
+        return $this->hasMany(BookingRequest::class);
     }
 }
