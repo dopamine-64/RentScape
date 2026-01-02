@@ -4,11 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\BookingRequest;
 use App\Models\Property;
 
 class BookingRequestController extends Controller
 {
+    // Use ONLY values that exist in your ENUM column
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACTIVE = 'active';
+
     /**
      * Tenant applies for a property
      */
@@ -16,77 +21,101 @@ class BookingRequestController extends Controller
     {
         $userId = Auth::id();
 
-        // 🔒 Fetch property with booking requests
         $property = Property::with('bookingRequests')->findOrFail($propertyId);
 
-        // 🚫 Owner cannot apply to own property
+        // Owner cannot apply to own property
         if ($property->user_id === $userId) {
             return back()->with('error', 'You cannot apply to your own property.');
         }
 
-        // 🚫 Property already inactive (tenant selected)
-        $hasActiveTenant = $property->bookingRequests
-            ->where('status', 'active')
-            ->count() > 0;
-
-        if ($hasActiveTenant) {
+        // Property already has an active tenant
+        if ($property->bookingRequests()->where('status', self::STATUS_ACTIVE)->exists()) {
             return back()->with('error', 'This property is no longer available.');
         }
 
-        // 🚫 Prevent duplicate application
-        $alreadyApplied = BookingRequest::where('property_id', $propertyId)
+        // Prevent duplicate application
+        if (BookingRequest::where('property_id', $propertyId)
             ->where('user_id', $userId)
-            ->exists();
-
-        if ($alreadyApplied) {
+            ->exists()) {
             return back()->with('error', 'You have already applied for this property.');
         }
 
-        // ✅ Create booking request (pending by default)
         BookingRequest::create([
             'property_id' => $propertyId,
             'user_id'     => $userId,
-            'status'      => 'pending',
+            'status'      => self::STATUS_PENDING,
         ]);
 
         return back()->with('success', 'You have successfully applied for this property.');
     }
 
     /**
+     * Owner views applicants ONLY for their own properties
+     */
+    public function viewApplicants()
+    {
+        $user = Auth::user();
+
+        if (!in_array($user->role, ['owner', 'both'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        $bookingRequests = BookingRequest::with(['user', 'property'])
+            ->whereHas('property', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('owner.applicants', compact('bookingRequests'));
+    }
+
+    /**
      * Owner selects a tenant
      */
-    public function selectTenant(Request $request, $propertyId)
+    public function selectTenant(Request $request, Property $property)
     {
-        $property = Property::with('bookingRequests')->findOrFail($propertyId);
+        $request->validate([
+            'booking_request_id' => 'required|exists:booking_requests,id',
+        ]);
 
         // 🔒 Only property owner can select tenant
         if ($property->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        $request->validate([
-            'booking_request_id' => 'required|exists:booking_requests,id',
-        ]);
+        DB::transaction(function () use ($request, $property) {
 
-        // 🚫 Prevent re-selection
-        $alreadySelected = $property->bookingRequests
-            ->where('status', 'active')
-            ->count() > 0;
+            $selectedRequest = BookingRequest::findOrFail($request->booking_request_id);
+            $tenantId = $selectedRequest->user_id;
 
-        if ($alreadySelected) {
-            return back()->with('error', 'A tenant has already been selected.');
-        }
+            // Tenant cannot already be active elsewhere
+            $alreadyActiveElsewhere = BookingRequest::where('user_id', $tenantId)
+                ->where('status', self::STATUS_ACTIVE)
+                ->where('id', '!=', $selectedRequest->id)
+                ->exists();
 
-        // 🔁 Selected request → active
-        BookingRequest::where('id', $request->booking_request_id)
-            ->where('property_id', $propertyId)
-            ->update(['status' => 'active']);
+            if ($alreadyActiveElsewhere) {
+                abort(400, 'This tenant is already selected for another property.');
+            }
 
-        // 🔁 All other requests → inactive
-        BookingRequest::where('property_id', $propertyId)
-            ->where('id', '!=', $request->booking_request_id)
-            ->update(['status' => 'inactive']);
+            // Remove other applicants for this property
+            BookingRequest::where('property_id', $property->id)
+                ->where('id', '!=', $selectedRequest->id)
+                ->delete();
 
-        return back()->with('success', 'Tenant selected successfully.');
+            // Remove tenant's other applications
+            BookingRequest::where('user_id', $tenantId)
+                ->where('property_id', '!=', $property->id)
+                ->delete();
+
+            // Activate selected tenant
+            $selectedRequest->update(['status' => self::STATUS_ACTIVE]);
+
+            // Mark property unavailable
+            $property->update(['status' => 'inactive']);
+        });
+
+        return back()->with('success', 'Tenant selected successfully!');
     }
 }
