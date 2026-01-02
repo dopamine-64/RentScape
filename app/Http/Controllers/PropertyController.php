@@ -37,6 +37,7 @@ class PropertyController extends Controller
             'images.*'       => 'nullable|image|max:5120',
         ]);
 
+        // ✅ FIXED (DO NOT USE owner_id)
         $data['user_id'] = Auth::id();
 
         $property = Property::create($data);
@@ -59,23 +60,21 @@ class PropertyController extends Controller
     // =========================
     public function index(Request $request)
     {
-        $query = Property::with(['images', 'bookingRequests']); // load all booking requests
+        $query = Property::with(['images', 'bookingRequests']);
 
-        // 🔍 Case-insensitive smart search
         if ($request->filled('q')) {
             $search = strtolower($request->q);
 
             $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(title) LIKE ?', ["%{$search}%"])
-                ->orWhereRaw('LOWER(city) LIKE ?', ["%{$search}%"])
-                ->orWhereRaw('LOWER(address) LIKE ?', ["%{$search}%"])
-                ->orWhereRaw('LOWER(property_type) LIKE ?', ["%{$search}%"]);
+                  ->orWhereRaw('LOWER(city) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(address) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(property_type) LIKE ?', ["%{$search}%"]);
             });
         }
 
         $properties = $query->latest()->get();
 
-        // ⚡ AJAX response
         if ($request->ajax()) {
             return view('properties.partials.cards', compact('properties'))->render();
         }
