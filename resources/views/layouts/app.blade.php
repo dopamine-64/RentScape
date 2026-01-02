@@ -12,7 +12,6 @@
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
 
     <style>
-        /* Body & Fonts */
         body {
             margin: 0;
             font-family: 'Poppins', sans-serif;
@@ -21,7 +20,6 @@
             color: #333;
         }
 
-        /* Top Navbar */
         nav.navbar {
             width: 100%;
             background: rgba(255, 255, 255, 0.15);
@@ -33,7 +31,6 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            
         }
 
         nav .brand {
@@ -57,21 +54,16 @@
             gap: 15px;
         }
 
-        nav .nav-links a,
-        nav .nav-links form button {
+        nav .nav-links a {
             color: #333;
             text-decoration: none;
             font-weight: 500;
             transition: 0.3s;
-            background: none;
-            border: none;
-            cursor: pointer;
             padding: 8px 12px;
             border-radius: 6px;
         }
 
-        nav .nav-links a:hover,
-        nav .nav-links form button:hover {
+        nav .nav-links a:hover {
             color: #FF6B6B;
             background: rgba(255, 107, 107, 0.2);
         }
@@ -90,7 +82,6 @@
             background: #FF1A1A;
         }
 
-        /* Auth Card */
         .auth-card {
             background: rgba(255, 255, 255, 0.2);
             border-radius: 20px;
@@ -132,17 +123,6 @@
             transform: scale(1.05);
         }
 
-        .text-light a {
-            color: #FF6B6B;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .text-light a:hover {
-            text-decoration: underline;
-        }
-
-        /* Responsive */
         @media (max-width:768px) {
             nav .nav-links {
                 flex-wrap: wrap;
@@ -155,18 +135,39 @@
 </head>
 <body>
 
-{{-- Navbar --}}
 <nav class="navbar">
     <div class="brand">
         <img src="/images/logo.png" alt="Logo"> RentScape
     </div>
+
     <div class="nav-links">
-        @if(session('active_role') === 'owner')
-            <a href="{{ route('owner.dashboard') }}">Dashboard</a>
-        @else
-            <a href="{{ route('tenant.dashboard') }}">Dashboard</a>
-        @endif
-        <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
+
+        {{-- Guest --}}
+        @guest
+            <a href="{{ route('login') }}">Login</a>
+            <a href="{{ route('register') }}">Register</a>
+        @endguest
+
+        {{-- Logged in --}}
+        @auth
+            @if(session('active_role') === 'owner')
+                <a href="{{ route('owner.dashboard') }}">Dashboard</a>
+            @else
+                <a href="{{ route('tenant.dashboard') }}">Dashboard</a>
+            @endif
+
+            @if(auth()->user()->role === 'owner' || auth()->user()->role === 'both')
+                <a href="{{ route('property.create') }}">
+                    <i class="ri-add-line me-1"></i> Post Property
+                </a>
+                <a href="{{ route('owner.applications.index') }}">
+                    <i class="ri-group-line me-1"></i> View Applicants
+                </a>
+            @endif
+
+            <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
+        @endauth
+
     </div>
 </nav>
 
@@ -175,7 +176,7 @@
 </main>
 
 <script>
-document.getElementById('logoutBtn').addEventListener('click', function(e){
+document.getElementById('logoutBtn')?.addEventListener('click', function(e){
     e.preventDefault();
     fetch("{{ route('logout') }}", {
         method: "POST",
@@ -191,6 +192,7 @@ document.getElementById('logoutBtn').addEventListener('click', function(e){
     });
 });
 </script>
+
 @yield('scripts')
 </body>
 </html>
