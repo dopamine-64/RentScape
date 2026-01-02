@@ -170,7 +170,9 @@
         <a href="{{ route('owner.dashboard') }}">Dashboard</a>
         <a href="{{ route('property.create') }}">Post Property</a>
         <a href="{{ route('properties.index') }}">Manage Properties</a> 
-        <a href="#">Applicants</a>
+        
+        <a href="{{ route('owner.applications.index') }}">Applicants</a> <!-- UPDATED -->
+
         <a href="#">Messages</a>
         <a href="#">Settings</a>
 
@@ -214,11 +216,13 @@
             </div>
         </a>
 
-        <div class="card">
-            <i class="ri-user-settings-line"></i>
-            <h3>Applicants</h3>
-            <p>View and approve tenants who applied for your listings.</p>
-        </div>
+        <a href="{{ route('owner.applications.index') }}" style="text-decoration: none;"> <!-- UPDATED -->
+            <div class="card">
+                <i class="ri-user-settings-line"></i>
+                <h3>Applicants</h3>
+                <p>View and approve tenants who applied for your listings.</p>
+            </div>
+        </a>
 
         <div class="card">
             <i class="ri-chat-4-line"></i>
