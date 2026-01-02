@@ -103,8 +103,16 @@ Route::middleware(['auth'])->group(function () {
         [BookingRequestController::class, 'apply']
     )->name('booking.apply');
 
-    // Owner selects a tenant ✅
+    // Owner selects a tenant
     Route::post('/properties/{property}/select-tenant', 
         [BookingRequestController::class, 'selectTenant']
     )->name('booking.selectTenant');
+
+    // Owner views all applicants for their properties
+    Route::get('/owner/applicants', [BookingRequestController::class, 'viewApplicants'])
+        ->name('owner.applications.index');
+    Route::post('/booking/select-tenant/{property}', [BookingRequestController::class, 'selectTenant'])
+    ->name('booking.selectTenant')
+    ->middleware('auth');
+
 });
