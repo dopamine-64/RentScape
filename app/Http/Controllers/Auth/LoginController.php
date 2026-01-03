@@ -16,19 +16,19 @@ class LoginController extends Controller
      * @return string
      */
     protected function redirectTo() {
-        $user = Auth::user();
+    $user = Auth::user();
 
-        // Default for both role users is Owner
-        if ($user->role === 'owner' || $user->role === 'both') {
-            session(['active_role' => 'owner']); // store in session
-            return '/dashboard';
-        } elseif ($user->role === 'tenant') {
-            session(['active_role' => 'tenant']);
-            return '/dashboard';
-        } else {
-            return '/login';
-        }
+    if ($user->role === 'owner' || $user->role === 'both') {
+        session(['active_role' => 'owner']); // store in session
+        return '/dashboard';
+    } elseif ($user->role === 'tenant') {
+        session(['active_role' => 'tenant']);
+        return '/dashboard';
+    } else {
+        return '/login';
     }
+}
+
 
     /**
      * Create a new controller instance.
@@ -36,7 +36,8 @@ class LoginController extends Controller
      * @return void
      */
 
-    protected $redirectTo = '/login';
+    protected $redirectTo = '/dashboard';
+
 
     public function __construct()
     {
