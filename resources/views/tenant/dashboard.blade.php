@@ -27,7 +27,6 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-    /* ✅ Brand Section with Logo */
     .brand {
         display: flex;
         align-items: center;
@@ -42,7 +41,6 @@
         width: 42px;
         object-fit: contain;
         vertical-align: middle;
-
     }
 
     .top-nav .nav-links {
@@ -115,6 +113,8 @@
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         transition: 0.4s ease-in-out;
         cursor: pointer;
+        text-decoration: none;
+        min-height: 280px;
     }
 
     .card:hover {
@@ -163,12 +163,11 @@
     </div>
     <div class="nav-links">
         <a href="#">Dashboard</a>
-        <a href="#">View Properties</a>
+        <a href="{{ route('properties.index') }}">View Properties</a>
         <a href="#">My Applications</a>
         <a href="#">Messages</a>
         <a href="#">Settings</a>
 
-        <!-- Role switch button for 'both' users -->
         @if(Auth::user()->role === 'both')
         <form action="{{ route('switch.role') }}" method="POST">
             @csrf
@@ -182,7 +181,6 @@
         </form>
         @endif
 
-        <!-- Logout -->
         <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
     </div>
 </div>
@@ -194,29 +192,32 @@
     </div>
 
     <div class="card-container">
-        <div class="card">
-            <i class="ri-home-smile-line"></i>
+        <!-- ✅ Tenant can view properties -->
+        <a href="{{ route('properties.index') }}" class="card">
+            <i class="ri-building-2-line"></i>
             <h3>View Properties</h3>
             <p>Explore all available rental listings and apply easily.</p>
-        </div>
-        
+        </a>
+
         <div class="card">
             <i class="ri-search-line"></i>
             <h3>Search Properties</h3>
             <p>Find available properties that match your needs.</p>
         </div>
-        
+
         <div class="card">
             <i class="ri-file-list-3-line"></i>
             <h3>My Applications</h3>
             <p>Track the status of your rental applications.</p>
         </div>
 
-        <div class="card">
-            <i class="ri-chat-4-line"></i>
-            <h3>Messages</h3>
-            <p>Stay in touch with property owners through direct messages.</p>
-        </div>
+        <a href="{{ route('chats.messenger') }}" style="text-decoration: none;">    
+            <div class="card">
+                <i class="ri-chat-4-line"></i>
+                <h3>Chats</h3>
+                <p>Communicate directly with your tenants.</p>
+            </div>
+        </a>
     </div>
 </div>
 
