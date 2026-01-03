@@ -28,6 +28,19 @@
             placeholder="Search by title, city, address or type (e.g. Kalabagan, Lakecircus, Apartment)">
     </div>
 
+    {{-- Price Comparison Form --}}
+    @if(!$properties->isEmpty())
+    <form method="GET" action="{{ route('properties.compare') }}" style="margin: 20px 0;">
+        @foreach($properties as $property)
+            <label style="margin-right: 15px;">
+                <input type="checkbox" name="property_ids[]" value="{{ $property->id }}">
+                {{ $property->title }} - {{ $property->price ?? 'N/A' }} TK
+            </label>
+        @endforeach
+        <button type="submit" class="btn btn-primary">Compare Prices</button>
+    </form>
+    @endif
+
     {{-- Property Results --}}
     <div id="propertyResults">
         @if($properties->isEmpty())
@@ -36,93 +49,78 @@
             <div class="property-grid">
                 @foreach($properties as $property)
                 @php
-                    // 1️⃣ Compute property status via model method
                     $propertyStatus = $property->status(); // active / pending / inactive
-
-                    // 2️⃣ Determine current user
                     $userRole = session('active_role');
                     $userId = Auth::id();
-
-                    // 3️⃣ Assigned tenant (active booking)
-                    $assignedTenantId = $property->bookingRequests
-                        ->where('status', 'active')
-                        ->first()?->user_id;
-
-                    // 4️⃣ Check if tenant already paid rent
-                    $rentPaid = \App\Models\RentPayment::where('property_id', $property->id)
-                                ->where('tenant_id', $userId)
-                                ->exists();
-
-                    // 5️⃣ Check if tenant already applied
-                    $applied = $property->bookingRequests
-                                ->where('user_id', $userId)
-                                ->first();
+                    $assignedTenantId = $property->bookingRequests->where('status', 'active')->first()?->user_id;
+                    $rentPaid = \App\Models\RentPayment::where('property_id', $property->id)->where('tenant_id', $userId)->exists();
+                    $applied = $property->bookingRequests->where('user_id', $userId)->first();
                 @endphp
 
-                    <div class="property-card">
+                <div class="property-card">
 
-                        {{-- STATUS BADGE --}}
-                        <span class="status-badge {{ $propertyStatus }}">
-                            {{ ucfirst($propertyStatus) }}
-                        </span>
+                    {{-- STATUS BADGE --}}
+                    <span class="status-badge {{ $propertyStatus }}">
+                        {{ ucfirst($propertyStatus) }}
+                    </span>
 
-                        {{-- Property Image --}}
-                        @if($property->images->count())
-                            <img src="{{ asset('storage/' . $property->images->first()->path) }}" class="property-image">
+                    {{-- Property Image --}}
+                    @if($property->images->count())
+                        <img src="{{ asset('storage/' . $property->images->first()->path) }}" class="property-image">
+                    @endif
+
+                    <h3>{{ $property->title }}</h3>
+                    <p>{{ $property->description }}</p>
+                    <p><strong>Price:</strong> {{ $property->price ?? 'N/A' }}</p>
+                    <p><strong>Address:</strong> {{ $property->address ?? 'N/A' }}</p>
+                    <p><strong>City:</strong> {{ $property->city ?? 'N/A' }}</p>
+                    <p><strong>Type:</strong> {{ $property->property_type ?? 'N/A' }}</p>
+                    <p><strong>Area:</strong> {{ $property->area ?? 'N/A' }} sqft</p>
+
+                    {{-- ACTION BUTTONS --}}
+                    <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+
+                        {{-- Tenant: Pay Rent --}}
+                        @if($userRole === 'tenant' && $propertyStatus === 'inactive' && $assignedTenantId === $userId)
+                            <form method="POST" action="{{ route('rent.pay') }}" onsubmit="return confirm('Confirm rent payment?');">
+                                @csrf
+                                <input type="hidden" name="property_id" value="{{ $property->id }}">
+                                <button type="submit" class="btn btn-success" @if($rentPaid) disabled @endif>
+                                    {{ $rentPaid ? 'Rent Paid' : 'Pay Rent (' . $property->price . ' TK)' }}
+                                </button>
+                            </form>
                         @endif
 
-                        <h3>{{ $property->title }}</h3>
-                        <p>{{ $property->description }}</p>
-                        <p><strong>Price:</strong> {{ $property->price ?? 'N/A' }}</p>
-                        <p><strong>Address:</strong> {{ $property->address ?? 'N/A' }}</p>
-                        <p><strong>City:</strong> {{ $property->city ?? 'N/A' }}</p>
-                        <p><strong>Type:</strong> {{ $property->property_type ?? 'N/A' }}</p>
-                        <p><strong>Area:</strong> {{ $property->area ?? 'N/A' }} sqft</p>
-
-                        {{-- ACTION BUTTONS --}}
-                        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
-
-                            {{-- Tenant: Pay Rent --}}
-                            @if($userRole === 'tenant' && $propertyStatus === 'inactive' && $assignedTenantId === $userId)
-                                <form method="POST" action="{{ route('rent.pay') }}" onsubmit="return confirm('Confirm rent payment?');">
+                        {{-- Tenant: Apply / Applied / Closed --}}
+                        @if($userRole === 'tenant' && $property->user_id !== $userId)
+                            @if(!$applied && $propertyStatus === 'active')
+                                <form method="POST" action="{{ route('booking.apply', $property->id) }}">
                                     @csrf
-                                    <input type="hidden" name="property_id" value="{{ $property->id }}">
-                                    <button type="submit" class="btn btn-success" @if($rentPaid) disabled @endif>
-                                        {{ $rentPaid ? 'Rent Paid' : 'Pay Rent (' . $property->price . ' TK)' }}
-                                    </button>
+                                    <button class="btn btn-sm btn-primary">Apply for Tenant</button>
                                 </form>
+                            @elseif($applied)
+                                <button class="btn btn-sm btn-success" disabled>Applied</button>
+                            @elseif($propertyStatus === 'inactive')
+                                <button class="btn btn-sm btn-secondary" disabled>Closed</button>
                             @endif
+                        @endif
 
-                            {{-- Tenant: Apply / Applied / Closed --}}
-                            @if($userRole === 'tenant' && $property->user_id !== $userId)
-                                @if(!$applied && $propertyStatus === 'active')
-                                    <form method="POST" action="{{ route('booking.apply', $property->id) }}">
-                                        @csrf
-                                        <button class="btn btn-sm btn-primary">Apply for Tenant</button>
-                                    </form>
-                                @elseif($applied)
-                                    <button class="btn btn-sm btn-success" disabled>Applied</button>
-                                @elseif($propertyStatus === 'inactive')
-                                    <button class="btn btn-sm btn-secondary" disabled>Closed</button>
-                                @endif
-                            @endif
+                        {{-- Owner: Delete --}}
+                        @if($userRole === 'owner' && $property->user_id === $userId)
+                            <form method="POST" action="{{ route('property.destroy', $property->id) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        @endif
 
-                            {{-- Owner: Delete --}}
-                            @if($userRole === 'owner' && $property->user_id === $userId)
-                                <form method="POST" action="{{ route('property.destroy', $property->id) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger">Delete</button>
-                                </form>
-                            @endif
+                        {{-- Owner viewing own property as tenant --}}
+                        @if($userRole === 'tenant' && $property->user_id === $userId)
+                            <button class="btn btn-sm btn-secondary" disabled>You own this property</button>
+                        @endif
 
-                            {{-- Owner viewing own property as tenant --}}
-                            @if($userRole === 'tenant' && $property->user_id === $userId)
-                                <button class="btn btn-sm btn-secondary" disabled>You own this property</button>
-                            @endif
-
-                        </div>
                     </div>
+                </div>
                 @endforeach
             </div>
         @endif
