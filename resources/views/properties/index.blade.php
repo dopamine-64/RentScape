@@ -35,27 +35,29 @@
         @else
             <div class="property-grid">
                 @foreach($properties as $property)
+                @php
+                    // 1️⃣ Compute property status via model method
+                    $propertyStatus = $property->status(); // active / pending / inactive
 
-                    @php
-                        // ------------------------
-                        // UNIVERSAL PROPERTY STATUS
-                        // ------------------------
-                        $hasActiveRequest = $property->bookingRequests
-                            ->where('status', 'active')
-                            ->count() > 0;
+                    // 2️⃣ Determine current user
+                    $userRole = session('active_role');
+                    $userId = Auth::id();
 
-                        $hasPendingRequests = $property->bookingRequests
-                            ->where('status', 'pending')
-                            ->count() > 0;
+                    // 3️⃣ Assigned tenant (active booking)
+                    $assignedTenantId = $property->bookingRequests
+                        ->where('status', 'active')
+                        ->first()?->user_id;
 
-                        if ($hasActiveRequest) {
-                            $propertyStatus = 'inactive';
-                        } elseif ($hasPendingRequests) {
-                            $propertyStatus = 'pending';
-                        } else {
-                            $propertyStatus = 'active';
-                        }
-                    @endphp
+                    // 4️⃣ Check if tenant already paid rent
+                    $rentPaid = \App\Models\RentPayment::where('property_id', $property->id)
+                                ->where('tenant_id', $userId)
+                                ->exists();
+
+                    // 5️⃣ Check if tenant already applied
+                    $applied = $property->bookingRequests
+                                ->where('user_id', $userId)
+                                ->first();
+                @endphp
 
                     <div class="property-card">
 
@@ -66,8 +68,7 @@
 
                         {{-- Property Image --}}
                         @if($property->images->count())
-                            <img src="{{ asset('storage/' . $property->images->first()->path) }}"
-                                 class="property-image">
+                            <img src="{{ asset('storage/' . $property->images->first()->path) }}" class="property-image">
                         @endif
 
                         <h3>{{ $property->title }}</h3>
@@ -78,49 +79,49 @@
                         <p><strong>Type:</strong> {{ $property->property_type ?? 'N/A' }}</p>
                         <p><strong>Area:</strong> {{ $property->area ?? 'N/A' }} sqft</p>
 
-                        {{-- Owner Delete --}}
-                        @if(session('active_role') === 'owner' && $property->user_id === Auth::id())
-                            <form action="{{ route('property.destroy', $property->id) }}"
-                                  method="POST" style="margin-top: 10px;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    Delete
-                                </button>
-                            </form>
-                        @endif
+                        {{-- ACTION BUTTONS --}}
+                        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
 
-                        {{-- Tenant Apply --}}
-                        @if(session('active_role') === 'tenant' &&
-                            $property->user_id !== Auth::id())
-                            @php
-                                $applied = $property->bookingRequests
-                                    ->where('user_id', Auth::id())
-                                    ->count() > 0;
-                            @endphp
-
-                            @if($propertyStatus === 'inactive')
-                                <button class="btn btn-sm btn-secondary" disabled>Closed</button>
-                            @elseif($applied)
-                                <button class="btn btn-sm btn-success" disabled>Applied</button>
-                            @else
-                                <form action="{{ route('booking.apply', $property->id) }}" method="POST" style="margin-top: 10px;">
+                            {{-- Tenant: Pay Rent --}}
+                            @if($userRole === 'tenant' && $propertyStatus === 'inactive' && $assignedTenantId === $userId)
+                                <form method="POST" action="{{ route('rent.pay') }}" onsubmit="return confirm('Confirm rent payment?');">
                                     @csrf
-                                    <button type="submit" class="btn btn-sm btn-primary">
-                                        Apply for Tenant
+                                    <input type="hidden" name="property_id" value="{{ $property->id }}">
+                                    <button type="submit" class="btn btn-success" @if($rentPaid) disabled @endif>
+                                        {{ $rentPaid ? 'Rent Paid' : 'Pay Rent (' . $property->price . ' TK)' }}
                                     </button>
                                 </form>
                             @endif
-                        @endif
 
-                        {{-- Owner viewing own property as tenant --}}
-                        @if(session('active_role') === 'tenant' && $property->user_id === Auth::id())
-                            <button class="btn btn-sm btn-secondary" disabled
-                                    style="margin-top: 10px;">
-                                You own this property
-                            </button>
-                        @endif
+                            {{-- Tenant: Apply / Applied / Closed --}}
+                            @if($userRole === 'tenant' && $property->user_id !== $userId)
+                                @if(!$applied && $propertyStatus === 'active')
+                                    <form method="POST" action="{{ route('booking.apply', $property->id) }}">
+                                        @csrf
+                                        <button class="btn btn-sm btn-primary">Apply for Tenant</button>
+                                    </form>
+                                @elseif($applied)
+                                    <button class="btn btn-sm btn-success" disabled>Applied</button>
+                                @elseif($propertyStatus === 'inactive')
+                                    <button class="btn btn-sm btn-secondary" disabled>Closed</button>
+                                @endif
+                            @endif
 
+                            {{-- Owner: Delete --}}
+                            @if($userRole === 'owner' && $property->user_id === $userId)
+                                <form method="POST" action="{{ route('property.destroy', $property->id) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            @endif
+
+                            {{-- Owner viewing own property as tenant --}}
+                            @if($userRole === 'tenant' && $property->user_id === $userId)
+                                <button class="btn btn-sm btn-secondary" disabled>You own this property</button>
+                            @endif
+
+                        </div>
                     </div>
                 @endforeach
             </div>
@@ -164,8 +165,8 @@
     padding: 14px 18px 14px 46px;
     font-size: 16px;
     border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255,0.4);
+    background: rgba(255,255,255,0.25);
     backdrop-filter: blur(10px);
 }
 
