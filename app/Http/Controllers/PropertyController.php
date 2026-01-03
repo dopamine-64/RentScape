@@ -37,7 +37,10 @@ class PropertyController extends Controller
             'images.*'       => 'nullable|image|max:5120',
         ]);
 
-        // ✅ FIXED (DO NOT USE owner_id)
+        // Always pass 0 for owner_id to bypass the NOT NULL constraint
+        $data['owner_id'] = 0;
+
+        // Also assign user_id for owner relationship
         $data['user_id'] = Auth::id();
 
         $property = Property::create($data);
@@ -56,12 +59,13 @@ class PropertyController extends Controller
     }
 
     // =========================
-    // SHOW ALL PROPERTIES (Everyone)
+    // Show All Properties (Everyone)
     // =========================
     public function index(Request $request)
     {
         $query = Property::with(['images', 'bookingRequests']);
 
+        // Search query
         if ($request->filled('q')) {
             $search = strtolower($request->q);
 
@@ -75,6 +79,7 @@ class PropertyController extends Controller
 
         $properties = $query->latest()->get();
 
+        // If AJAX request (smart search), return only partial cards
         if ($request->ajax()) {
             return view('properties.partials.cards', compact('properties'))->render();
         }
@@ -83,16 +88,18 @@ class PropertyController extends Controller
     }
 
     // =========================
-    // DELETE PROPERTY (Owner Only)
+    // Delete Property (Owner Only)
     // =========================
     public function destroy($id)
     {
         $property = Property::findOrFail($id);
 
+        // Only owner can delete
         if ($property->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
+        // Delete property (images will remain in storage; optionally delete them manually)
         $property->delete();
 
         return back()->with('success', 'Property deleted successfully!');

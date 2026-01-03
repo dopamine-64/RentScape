@@ -12,6 +12,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\BookingRequestController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\RentPaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -113,17 +114,27 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    // Single-page Messenger view (left sidebar + right chat)
     Route::get('/messenger', [ConversationController::class, 'messenger'])
         ->name('chats.messenger');
 
-    // Send a message in any conversation
     Route::post('/messages/send', [MessageController::class, 'store'])
         ->name('messages.store');
 
-    // Pin / Unpin conversations (owner only)
     Route::post('/chats/{conversation}/toggle-pin', 
         [ConversationController::class, 'togglePin']
     )->name('chats.togglePin');
 
+    /*
+    |--------------------------------------------------------------------------
+    | Rent Payment Routes
+    |--------------------------------------------------------------------------
+    */
+
+    // Pay rent (tenant only) — expects property_id in POST
+    Route::post('/rent/pay', [RentPaymentController::class, 'pay'])
+        ->name('rent.pay');
+
+    // Rent history for owner/tenant (role-aware)
+    Route::get('/rent/history', [RentPaymentController::class, 'history'])
+        ->name('rent.history');
 });
