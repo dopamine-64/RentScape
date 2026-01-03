@@ -165,7 +165,7 @@
         <a href="#">Dashboard</a>
         <a href="{{ route('properties.index') }}">View Properties</a>
         <a href="#">My Applications</a>
-        <a href="#">Messages</a>
+        <a href="{{ route('rent.history') }}">Rent History</a>
         <a href="#">Settings</a>
 
         @if(Auth::user()->role === 'both')
