@@ -114,7 +114,7 @@
         transition: 0.4s ease-in-out;
         cursor: pointer;
         text-decoration: none;
-        color: inherit;
+        min-height: 280px;
     }
 
     .card:hover {
@@ -211,11 +211,13 @@
             <p>Track the status of your rental applications.</p>
         </div>
 
-        <div class="card">
-            <i class="ri-chat-4-line"></i>
-            <h3>Messages</h3>
-            <p>Stay in touch with property owners through direct messages.</p>
-        </div>
+        <a href="{{ route('chats.messenger') }}" style="text-decoration: none;">    
+            <div class="card">
+                <i class="ri-chat-4-line"></i>
+                <h3>Chats</h3>
+                <p>Communicate directly with your tenants.</p>
+            </div>
+        </a>
     </div>
 </div>
 
