@@ -113,7 +113,6 @@
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         transition: 0.4s ease-in-out;
         cursor: pointer;
-        min-height: 280px;
     }
 
     .card:hover {
@@ -137,6 +136,13 @@
         font-size: 0.95rem;
         margin-top: 5px;
         opacity: 0.9;
+    }
+
+    .card-post-property {
+        min-height: 280px; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     @media (max-width: 768px) {
@@ -164,12 +170,10 @@
         <a href="{{ route('owner.dashboard') }}">Dashboard</a>
         <a href="{{ route('property.create') }}">Post Property</a>
         <a href="{{ route('properties.index') }}">Manage Properties</a> 
-        
-        <a href="{{ route('owner.applications.index') }}">Applicants</a> <!-- UPDATED -->
-
-        <a href="{{ route('rent.history') }}">Rent History</a>
-        
+        <a href="#">Applicants</a>
+        <a href="#">Messages</a>
         <a href="#">Settings</a>
+        <a href="{{ route('profile.show') }}">Profile</a>
 
         @if(Auth::user()->role === 'both')
         <form action="{{ route('switch.role') }}" method="POST">
@@ -196,7 +200,7 @@
 
     <div class="card-container">
         <a href="{{ route('property.create') }}" style="text-decoration: none;">
-            <div class="card">
+            <div class="card card-post-property">
                 <i class="ri-home-smile-line"></i>
                 <h3>Post Property</h3>
                 <p>Add a new property for rent with details and images.</p>
@@ -211,21 +215,17 @@
             </div>
         </a>
 
-        <a href="{{ route('owner.applications.index') }}" style="text-decoration: none;"> <!-- UPDATED -->
-            <div class="card">
-                <i class="ri-user-settings-line"></i>
-                <h3>Applicants</h3>
-                <p>View and approve tenants who applied for your listings.</p>
-            </div>
-        </a>
+        <div class="card">
+            <i class="ri-user-settings-line"></i>
+            <h3>Applicants</h3>
+            <p>View and approve tenants who applied for your listings.</p>
+        </div>
 
-        <a href="{{ route('chats.messenger') }}" style="text-decoration: none;">    
-            <div class="card">
-                <i class="ri-chat-4-line"></i>
-                <h3>Chats</h3>
-                <p>Communicate directly with your tenants.</p>
-            </div>
-        </a>
+        <div class="card">
+            <i class="ri-chat-4-line"></i>
+            <h3>Chats</h3>
+            <p>Communicate directly with your tenants.</p>
+        </div>
     </div>
 </div>
 
