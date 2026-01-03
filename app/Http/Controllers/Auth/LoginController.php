@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\LoginNotification;
+use Illuminate\Support\Facades\Mail;
 
 class LoginController extends Controller
 {
@@ -15,19 +17,25 @@ class LoginController extends Controller
      *
      * @return string
      */
-    protected function redirectTo() {
+    protected function redirectTo()
+{
     $user = Auth::user();
 
+    // Send login email
+    Mail::to($user->email)->send(new LoginNotification($user));
+
+    // Role logic
     if ($user->role === 'owner' || $user->role === 'both') {
-        session(['active_role' => 'owner']); // store in session
+        session(['active_role' => 'owner']);
         return '/dashboard';
     } elseif ($user->role === 'tenant') {
         session(['active_role' => 'tenant']);
         return '/dashboard';
-    } else {
-        return '/login';
     }
+
+    return '/login';
 }
+
 
 
     /**
