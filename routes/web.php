@@ -10,6 +10,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\BookingRequestController;
+use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,19 +78,15 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    // Create property
     Route::get('/property/create', [PropertyController::class, 'create'])
         ->name('property.create');
 
-    // Store property
     Route::post('/property/store', [PropertyController::class, 'store'])
         ->name('property.store');
 
-    // View all properties (owners + tenants)
     Route::get('/properties', [PropertyController::class, 'index'])
         ->name('properties.index');
 
-    // Delete property (only owner)
     Route::delete('/properties/{id}', [PropertyController::class, 'destroy'])
         ->name('property.destroy');
 
@@ -98,21 +96,34 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    // Tenant applies for property
     Route::post('/properties/{property}/apply', 
         [BookingRequestController::class, 'apply']
     )->name('booking.apply');
 
-    // Owner selects a tenant
     Route::post('/properties/{property}/select-tenant', 
         [BookingRequestController::class, 'selectTenant']
     )->name('booking.selectTenant');
 
-    // Owner views all applicants for their properties
     Route::get('/owner/applicants', [BookingRequestController::class, 'viewApplicants'])
         ->name('owner.applications.index');
-    Route::post('/booking/select-tenant/{property}', [BookingRequestController::class, 'selectTenant'])
-    ->name('booking.selectTenant')
-    ->middleware('auth');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Messenger-style Chat Routes
+    |--------------------------------------------------------------------------
+    */
+
+    // Single-page Messenger view (left sidebar + right chat)
+    Route::get('/messenger', [ConversationController::class, 'messenger'])
+        ->name('chats.messenger');
+
+    // Send a message in any conversation
+    Route::post('/messages/send', [MessageController::class, 'store'])
+        ->name('messages.store');
+
+    // Pin / Unpin conversations (owner only)
+    Route::post('/chats/{conversation}/toggle-pin', 
+        [ConversationController::class, 'togglePin']
+    )->name('chats.togglePin');
 
 });
