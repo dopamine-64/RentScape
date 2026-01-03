@@ -167,7 +167,8 @@
         
         <a href="{{ route('owner.applications.index') }}">Applicants</a> <!-- UPDATED -->
 
-        <a href="#">Messages</a>
+        <a href="{{ route('rent.history') }}">Rent History</a>
+        
         <a href="#">Settings</a>
 
         @if(Auth::user()->role === 'both')
