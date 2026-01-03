@@ -3,103 +3,77 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-class Property extends Model
+class User extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * Mass assignable attributes
+     *
+     * @var array<int, string>
      */
     protected $fillable = [
-        'title',
-        'description',
-        'price',
-        'address',
-        'city',
-        'neighborhood',
-        'property_type',
-        'bedrooms',
-        'bathrooms',
-        'area',
-        'available_date',
-        'lease_term',
-        'security_deposit',
-        'parking',
-        'laundry',
-        'pet_policy',
-        'furnished',
-        'contact_email',
-        'contact_phone',
-        'user_id',
-        'owner_id', 
-        'tenant_id',
+        'name',
+        'email',
+        'password',
+        'role',
+        'wallet_balance',
     ];
 
     /**
-     * Relationship with property images
+     * Hidden attributes for serialization
+     *
+     * @var array<int, string>
      */
-    public function images()
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Attribute casting
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'wallet_balance' => 'integer',
+    ];
+
+    /**
+     * Automatically set default wallet balance on user creation
+     */
+    protected static function booted()
     {
-        return $this->hasMany(PropertyImage::class);
+        static::creating(function ($user) {
+            // Only assign default if wallet_balance is null or empty
+            if (!isset($user->wallet_balance) || $user->wallet_balance === 0) {
+                if (in_array($user->role, ['tenant', 'both'])) {
+                    $user->wallet_balance = 100000; // Default tenant balance
+                } else {
+                    $user->wallet_balance = 0;      // Default owner balance
+                }
+            }
+        });
     }
 
     /**
-     * Relationship with the owner
+     * Optional: Check if user is tenant
      */
-    public function owner()
+    public function isTenant(): bool
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return in_array($this->role, ['tenant', 'both']);
     }
 
     /**
-     * Relationship with booking requests
+     * Optional: Check if user is owner
      */
-    public function bookingRequests()
+    public function isOwner(): bool
     {
-        return $this->hasMany(BookingRequest::class);
-    }
-
-    /**
-     * Get the active tenant (user_id from booking_requests with status 'active')
-     */
-    public function activeTenant()
-    {
-        return $this->bookingRequests()->where('status', 'active')->first();
-    }
-
-    /**
-     * Compute the property status based on bookings
-     * @return string 'active', 'pending', or 'inactive'
-     */
-    public function status()
-    {
-        if ($this->bookingRequests()->where('status', 'active')->exists()) {
-            return 'inactive'; // property already rented
-        }
-
-        if ($this->bookingRequests()->where('status', 'pending')->exists()) {
-            return 'pending'; // tenant applied but not yet confirmed
-        }
-
-        return 'active'; // no applications
-    }
-
-    /**
-     * Check if the property is available for rent
-     */
-    public function isAvailable()
-    {
-        return $this->status() === 'active';
-    }
-
-    /**
-     * Check if a given tenant can pay rent for this property
-     */
-    public function canPayRent($tenantId)
-    {
-        $activeBooking = $this->bookingRequests()->where('status', 'active')->first();
-        return $activeBooking && $activeBooking->user_id === $tenantId;
+        return in_array($this->role, ['owner', 'both']);
     }
 }
