@@ -113,6 +113,7 @@
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         transition: 0.4s ease-in-out;
         cursor: pointer;
+        min-height: 280px;
     }
 
     .card:hover {
@@ -136,13 +137,6 @@
         font-size: 0.95rem;
         margin-top: 5px;
         opacity: 0.9;
-    }
-
-    .card-post-property {
-        min-height: 280px; 
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
     }
 
     @media (max-width: 768px) {
@@ -201,7 +195,7 @@
 
     <div class="card-container">
         <a href="{{ route('property.create') }}" style="text-decoration: none;">
-            <div class="card card-post-property">
+            <div class="card">
                 <i class="ri-home-smile-line"></i>
                 <h3>Post Property</h3>
                 <p>Add a new property for rent with details and images.</p>
@@ -224,11 +218,13 @@
             </div>
         </a>
 
-        <div class="card">
-            <i class="ri-chat-4-line"></i>
-            <h3>Chats</h3>
-            <p>Communicate directly with your tenants.</p>
-        </div>
+        <a href="{{ route('chats.messenger') }}" style="text-decoration: none;">    
+            <div class="card">
+                <i class="ri-chat-4-line"></i>
+                <h3>Chats</h3>
+                <p>Communicate directly with your tenants.</p>
+            </div>
+        </a>
     </div>
 </div>
 
