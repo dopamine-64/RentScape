@@ -10,18 +10,27 @@ class BookingRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'property_id',
+        'user_id',
         'status',
     ];
 
+    // Tenant who applied
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Property applied for
     public function property()
     {
         return $this->belongsTo(Property::class);
     }
 
-    public function user()
+    // 💬 Conversation between owner & tenant
+    public function conversation()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasOne(Conversation::class, 'tenant_id', 'user_id')
+            ->where('property_id', $this->property_id);
     }
 }
