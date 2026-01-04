@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\ProfileController;
+
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Tenant\TenantDashboardController;
@@ -10,58 +10,122 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\BookingRequestController;
-use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\Tenant\TenantComplaintController;
+use App\Http\Controllers\Tenant\TenantApplicationController;
+
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return view('welcome');
 });
 
-// Authentication routes (login, register, etc.)
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
 Auth::routes();
 
-// Default home route
+/*
+|--------------------------------------------------------------------------
+| Default Home Route
+|--------------------------------------------------------------------------
+*/
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-// 🔒 Routes for logged-in users only
+/*
+|--------------------------------------------------------------------------
+| Protected Routes (Authenticated Users Only)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
 
-    // ------------------------
-    // Dashboards
-    // ------------------------
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
-    Route::get('/tenant/dashboard', [TenantDashboardController::class, 'index'])->name('tenant.dashboard');
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboards
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
-    // ------------------------
-    // Profile Routes
-    // ------------------------
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])
+        ->name('owner.dashboard');
 
-    // ------------------------
-    // Role switch
-    // ------------------------
-    Route::post('/switch-role', [RoleController::class, 'switchRole'])->name('switch.role');
+    Route::get('/tenant/dashboard', [TenantDashboardController::class, 'index'])
+        ->name('tenant.dashboard');
 
-    // ------------------------
-    // Property Routes
-    // ------------------------
-    Route::get('/property/create', [PropertyController::class, 'create'])->name('property.create');
-    Route::post('/property/store', [PropertyController::class, 'store'])->name('property.store');
-    Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
-    Route::delete('/properties/{id}', [PropertyController::class, 'destroy'])->name('property.destroy');
+    /*
+    |--------------------------------------------------------------------------
+    | Role Switching
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/switch-role', [RoleController::class, 'switchRole'])
+        ->name('switch.role');
 
-    // ------------------------
-    // Tenant Apply Route
-    // ------------------------
-    Route::post('/properties/{property}/apply', [BookingRequestController::class, 'apply'])->name('booking.apply');
+    /*
+    |--------------------------------------------------------------------------
+    | Property Management
+    |--------------------------------------------------------------------------
+    */
 
-});
-Route::get('/test-mail', function() {
-    Mail::raw('Test email from Rentscape', function ($message) {
-        $message->to('rafinsammo@gmail.com')
-                ->subject('SMTP Test');
+    // Create property
+    Route::get('/property/create', [PropertyController::class, 'create'])
+        ->name('property.create');
+
+    // Store property
+    Route::post('/property/store', [PropertyController::class, 'store'])
+        ->name('property.store');
+
+    // View all properties (owners + tenants)
+    Route::get('/properties', [PropertyController::class, 'index'])
+        ->name('properties.index');
+
+    // Delete property (owner only)
+    Route::delete('/properties/{id}', [PropertyController::class, 'destroy'])
+        ->name('property.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Booking Requests (Tenant Apply)
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/properties/{property}/apply', [BookingRequestController::class, 'apply'])
+        ->name('booking.apply');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Wishlist ❤️ (Tenant Feature)
+    |--------------------------------------------------------------------------
+    */
+
+    // Add / Remove property from wishlist
+    Route::post('/wishlist/toggle/{property}', [WishlistController::class, 'toggle'])
+        ->name('wishlist.toggle');
+
+    // View tenant wishlist
+    Route::get('/wishlist', [WishlistController::class, 'index'])
+        ->name('wishlist.index');
+
+
+
+    Route::get('/tenant/applications', [TenantApplicationController::class, 'index'])
+    ->name('tenant.applications');
+
+
+    Route::middleware(['auth'])->group(function () {
+    Route::get('/tenant/complaints', [TenantComplaintController::class, 'index'])
+        ->name('tenant.complaints');
+
+    Route::post('/tenant/complaints', [TenantComplaintController::class, 'store'])
+        ->name('tenant.complaints.store');
     });
 
-    return 'Mail sent (check Gmail inbox/spam)';
+
+
 });
