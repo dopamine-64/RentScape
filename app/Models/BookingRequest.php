@@ -10,27 +10,49 @@ class BookingRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'property_id',
         'user_id',
+        'property_id',
         'status',
     ];
 
-    // Tenant who applied
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    /**
+     * Default values for attributes
+     */
+    protected $attributes = [
+        'status' => 'pending',
+    ];
 
-    // Property applied for
+    /**
+     * Booking belongs to a property
+     */
     public function property()
     {
         return $this->belongsTo(Property::class);
     }
 
-    // 💬 Conversation between owner & tenant
-    public function conversation()
+    /**
+     * Booking belongs to a user (tenant)
+     */
+    public function user()
     {
-        return $this->hasOne(Conversation::class, 'tenant_id', 'user_id')
-            ->where('property_id', $this->property_id);
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Status helpers (optional but clean)
+     */
+    public function isPending()
+    {
+        return $this->status === 'pending';
+    }
+
+    public function isApproved()
+    {
+        return $this->status === 'approved';
+    }
+
+    public function isRejected()
+    {
+        return $this->status === 'rejected';
     }
 }
