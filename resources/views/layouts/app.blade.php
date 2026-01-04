@@ -161,29 +161,13 @@
         <img src="/images/logo.png" alt="Logo"> RentScape
     </div>
     <div class="nav-links">
-    @auth
-        {{-- Dashboard link based on role --}}
         @if(session('active_role') === 'owner')
             <a href="{{ route('owner.dashboard') }}">Dashboard</a>
-        @elseif(session('active_role') === 'tenant')
-            <a href="{{ route('tenant.dashboard') }}">Dashboard</a>
         @else
-            <a href="{{ route('dashboard') }}">Dashboard</a>
+            <a href="{{ route('tenant.dashboard') }}">Dashboard</a>
         @endif
-
-        {{-- Profile link --}}
-        <a href="{{ route('profile.show') }}">Profile</a>
-
-        {{-- Logout button --}}
         <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
-    @else
-        {{-- Show login/register if not authenticated --}}
-        <a href="{{ route('login') }}">Login</a>
-        <a href="{{ route('register') }}">Register</a>
-    @endauth
-</div>
-
-
+    </div>
 </nav>
 
 <main class="container py-5">
