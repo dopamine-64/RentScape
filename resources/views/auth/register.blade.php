@@ -71,7 +71,7 @@
 
     .form-control:focus {
         background: rgba(60, 60, 60, 0.8) !important;
-        box-shadow: 0 0 10px #FF6B6B;
+        box-shadow: 0 0 7px #FF6B6B;
     }
 
     /* ✅ Dropdown Styling (same height as inputs) */
@@ -107,7 +107,7 @@
 
     .select-wrapper select:focus {
         outline: none;
-        box-shadow: 0 0 10px #FF6B6B;
+        box-shadow: 0 0 7px #FF6B6B;
     }
 
     /* ✅ Prevent Autofill White Background */
