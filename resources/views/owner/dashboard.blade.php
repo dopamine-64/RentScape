@@ -173,7 +173,6 @@
         <a href="#">Applicants</a>
         <a href="#">Messages</a>
         <a href="#">Settings</a>
-        <a href="{{ route('profile.show') }}">Profile</a>
 
         @if(Auth::user()->role === 'both')
         <form action="{{ route('switch.role') }}" method="POST">
