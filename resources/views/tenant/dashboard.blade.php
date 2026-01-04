@@ -11,7 +11,6 @@
         min-height: 100vh;
     }
 
-    /* ✅ Top Navbar */
     .top-nav {
         width: 100%;
         background: rgba(255, 255, 255, 0.15);
@@ -39,46 +38,41 @@
     .brand img {
         height: 42px;
         width: 42px;
-        object-fit: contain;
-        vertical-align: middle;
     }
 
-    .top-nav .nav-links {
+    .nav-links {
         display: flex;
         align-items: center;
         gap: 15px;
     }
 
-    .top-nav .nav-links a,
-    .top-nav .nav-links form button {
-        color: #333;
+    .nav-links a,
+    .nav-links form button {
         text-decoration: none;
+        color: #333;
         font-weight: 500;
-        transition: 0.3s;
+        padding: 8px 12px;
+        border-radius: 6px;
         background: none;
         border: none;
         cursor: pointer;
-        padding: 8px 12px;
-        border-radius: 6px;
     }
 
-    .top-nav .nav-links a:hover,
-    .top-nav .nav-links form button:hover {
+    .nav-links a:hover,
+    .nav-links form button:hover {
+        background: rgba(255,107,107,0.2);
         color: #FF6B6B;
-        background: rgba(255, 107, 107, 0.2);
     }
 
-    .top-nav .logout-btn {
+    .logout-btn {
         background: #FF4D4D;
+        color: white;
         padding: 8px 15px;
         border-radius: 8px;
-        text-decoration: none;
-        color: white;
         font-weight: bold;
-        transition: 0.3s;
     }
 
-    .top-nav .logout-btn:hover {
+    .logout-btn:hover {
         background: #FF1A1A;
     }
 
@@ -89,14 +83,12 @@
     }
 
     .header {
-        margin-bottom: 40px;
         text-align: center;
+        margin-bottom: 40px;
     }
 
     .header h1 {
-        font-size: 32px;
         color: #FF6B6B;
-        margin-bottom: 10px;
     }
 
     .card-container {
@@ -106,20 +98,19 @@
     }
 
     .card {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(255,255,255,0.2);
         border-radius: 20px;
         padding: 25px;
         text-align: center;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        transition: 0.4s ease-in-out;
-        cursor: pointer;
         text-decoration: none;
-        min-height: 280px;
+        color: inherit;
+        transition: 0.4s;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     }
 
     .card:hover {
         transform: translateY(-8px) scale(1.03);
-        background: rgba(255, 107, 107, 0.25);
+        background: rgba(255,107,107,0.25);
         color: white;
     }
 
@@ -128,57 +119,28 @@
         color: #FF6B6B;
         margin-bottom: 15px;
     }
-
-    .card h3 {
-        margin-top: 10px;
-        font-weight: 600;
-    }
-
-    .card p {
-        font-size: 0.95rem;
-        margin-top: 5px;
-        opacity: 0.9;
-    }
-
-    @media (max-width: 768px) {
-        .card-container {
-            grid-template-columns: 1fr;
-        }
-        .top-nav {
-            flex-direction: column;
-            gap: 10px;
-        }
-        .top-nav .nav-links {
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-        }
-    }
 </style>
 
 <div class="top-nav">
     <div class="brand">
-        <img src="/images/logo.png" alt="Logo">
+        <img src="/images/logo.png">
         RentScape
     </div>
+
     <div class="nav-links">
-        <a href="#">Dashboard</a>
+        <a href="{{ route('tenant.dashboard') }}">Dashboard</a>
         <a href="{{ route('properties.index') }}">View Properties</a>
-        <a href="#">My Applications</a>
-        <a href="{{ route('rent.history') }}">Rent History</a>
-        <a href="#">Settings</a>
+        <a href="{{ route('wishlist.index') }}">Wishlist ❤️</a>
+        <a href="{{ route('tenant.applications') }}">My Applications</a>
+
+        <a href="{{ route('tenant.complaints') }}">Complaints</a>
+
 
         @if(Auth::user()->role === 'both')
-        <form action="{{ route('switch.role') }}" method="POST">
-            @csrf
-            @if(session('active_role') === 'owner')
-                <input type="hidden" name="role" value="tenant">
-                <button type="submit">Switch to Tenant</button>
-            @else
-                <input type="hidden" name="role" value="owner">
-                <button type="submit">Switch to Owner</button>
-            @endif
-        </form>
+            <form action="{{ route('switch.role') }}" method="POST">
+                @csrf
+                <button type="submit">Switch Role</button>
+            </form>
         @endif
 
         <a href="#" class="logout-btn" id="logoutBtn">Logout</a>
@@ -188,40 +150,40 @@
 <div class="main-content">
     <div class="header">
         <h1>Welcome, {{ Auth::user()->name }}!</h1>
-        <p>Role: <strong>{{ ucfirst(session('active_role', Auth::user()->role)) }}</strong></p>
+        <p>Role: <strong>{{ ucfirst(session('active_role')) }}</strong></p>
     </div>
 
     <div class="card-container">
-        <!-- ✅ Tenant can view properties -->
+
         <a href="{{ route('properties.index') }}" class="card">
             <i class="ri-building-2-line"></i>
             <h3>View Properties</h3>
-            <p>Explore all available rental listings and apply easily.</p>
+            <p>Explore available rentals.</p>
         </a>
 
-        <div class="card">
-            <i class="ri-search-line"></i>
-            <h3>Search Properties</h3>
-            <p>Find available properties that match your needs.</p>
-        </div>
+        <a href="{{ route('wishlist.index') }}" class="card">
+            <i class="ri-heart-3-line"></i>
+            <h3>Wishlist</h3>
+            <p>Saved properties for later viewing.</p>
+        </a>
 
-        <div class="card">
+        <!-- ✅ FIXED -->
+        <a href="{{ route('tenant.applications') }}" class="card">
             <i class="ri-file-list-3-line"></i>
             <h3>My Applications</h3>
-            <p>Track the status of your rental applications.</p>
-        </div>
-
-        <a href="{{ route('chats.messenger') }}" style="text-decoration: none;">    
-            <div class="card">
-                <i class="ri-chat-4-line"></i>
-                <h3>Chats</h3>
-                <p>Communicate directly with your tenants.</p>
-            </div>
+            <p>Track application status.</p>
         </a>
+
+        <a href="{{ route('tenant.complaints') }}" class="card">
+            <i class="ri-message-3-line"></i>
+            <h3>Complaints</h3>
+            <p>Submit issues or contact support.</p>
+        </a>
+
+
     </div>
 </div>
 
-<!-- Remix Icon CDN -->
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
 
 <script>
@@ -230,16 +192,9 @@ document.getElementById('logoutBtn').addEventListener('click', function(e){
     fetch("{{ route('logout') }}", {
         method: "POST",
         headers: {
-            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-            "Accept": "application/json",
-            "Content-Type": "application/json"
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
         }
-    })
-    .then(response => {
-        if(response.ok){
-            window.location.href = "{{ route('login') }}";
-        }
-    });
+    }).then(() => window.location.href = "{{ route('login') }}");
 });
 </script>
 @endsection
