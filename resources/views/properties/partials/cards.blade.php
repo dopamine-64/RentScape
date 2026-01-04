@@ -3,21 +3,17 @@
 @else
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
         @foreach($properties as $property)
+
             @php
-                $propertyStatus = $property->status(); // Use method
-                $userRole = session('active_role');
-                $userId = Auth::id();
-                $assignedTenantId = $property->bookingRequests
-                    ->where('status', 'active')
-                    ->first()?->user_id;
-                $rentPaid = \App\Models\RentPayment::where('property_id', $property->id)
-                            ->where('tenant_id', $userId)
-                            ->exists();
+              $inWishlist = Auth::check() &&
+                $property->wishlistedBy()
+                    ->where('user_id', Auth::id())
+                    ->exists();
             @endphp
+
 
             <div class="property-card"
                  style="
-                    position: relative;
                     background:#fff;
                     padding:20px;
                     border-radius:12px;
@@ -26,23 +22,23 @@
                     flex-direction:column;
                     justify-content:space-between;
                     transition:0.3s;
+                    position:relative;
                  ">
 
-                {{-- STATUS BADGE --}}
-                <span style="
-                    position:absolute;
-                    top:12px;
-                    right:12px;
-                    padding:6px 14px;
-                    border-radius:20px;
-                    font-size:12px;
-                    font-weight:600;
-                    color:#fff;
-                    background:
-                        {{ $propertyStatus === 'active' ? '#2ecc71' : ($propertyStatus === 'pending' ? '#f39c12' : '#e74c3c') }};
-                ">
-                    {{ ucfirst($propertyStatus) }}
-                </span>
+                {{-- ❤️ Wishlist Button (Tenant Only) --}}
+                @if(session('active_role') === 'tenant')
+                  <button
+                        class="wishlist-btn"
+                        data-id="{{ $property->id }}"
+                        style="border:none;background:none;font-size:22px;cursor:pointer"
+                  >
+                        <span class="heart-icon">
+                            {{ in_array($property->id, $wishlistedIds ?? []) ? '❤️' : '🤍' }}
+                        </span>
+                  </button>
+
+
+                @endif
 
                 {{-- Property Image --}}
                 @if($property->images->count())
@@ -62,40 +58,28 @@
                 {{-- ACTION BUTTONS --}}
                 <div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
 
-                    {{-- PAY RENT (Tenant only, inactive property, assigned tenant) --}}
-                    @if($userRole === 'tenant' && $propertyStatus === 'inactive' && $assignedTenantId === $userId)
-                        <form method="POST" action="{{ route('rent.pay') }}"
-                              onsubmit="return confirm('Confirm rent payment?');">
-                            @csrf
-                            <input type="hidden" name="property_id" value="{{ $property->id }}">
-                            <button type="submit" class="btn btn-success" @if($rentPaid) disabled @endif>
-                                {{ $rentPaid ? 'Rent Paid' : 'Pay Rent (' . $property->price . ' TK)' }}
-                            </button>
-                        </form>
-                    @endif
-
-                    {{-- APPLY (Tenant only, not own property, property active) --}}
-                    @if($userRole === 'tenant' && $property->user_id !== $userId)
+                    {{-- Tenant Apply --}}
+                    @if(session('active_role') === 'tenant' && $property->user_id !== Auth::id())
                         @php
-                            $applied = $property->bookingRequests->where('user_id', $userId)->first();
+                            $applied = $property->bookingRequests
+                                ->where('user_id', Auth::id())
+                                ->first();
                         @endphp
 
-                        @if(!$applied && $propertyStatus === 'active')
+                        @if($applied)
+                            <button class="btn btn-sm btn-success" disabled>Applied</button>
+                        @else
                             <form action="{{ route('booking.apply', $property->id) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-primary">
                                     Apply for Tenant
                                 </button>
                             </form>
-                        @elseif($applied)
-                            <button class="btn btn-sm btn-success" disabled>Applied</button>
-                        @elseif($propertyStatus === 'inactive')
-                            <button class="btn btn-sm btn-secondary" disabled>Closed</button>
                         @endif
                     @endif
 
-                    {{-- DELETE (Owner only) --}}
-                    @if($userRole === 'owner' && $property->user_id === $userId)
+                    {{-- Owner Delete --}}
+                    @if(session('active_role') === 'owner' && $property->user_id === Auth::id())
                         <form action="{{ route('property.destroy', $property->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
@@ -105,15 +89,32 @@
                         </form>
                     @endif
 
-                    {{-- Owner viewing own property as tenant --}}
-                    @if($userRole === 'tenant' && $property->user_id === $userId)
-                        <button class="btn btn-sm btn-secondary" disabled>
-                            You own this property
-                        </button>
-                    @endif
-
                 </div>
             </div>
         @endforeach
     </div>
 @endif
+
+{{-- Wishlist Button Styling --}}
+<style>
+.wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    border-radius: 50%;
+    padding: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.wishlist-btn i {
+    font-size: 20px;
+    color: #ff4d6d;
+}
+
+.wishlist-btn:hover {
+    transform: scale(1.15);
+}
+</style>
