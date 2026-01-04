@@ -39,7 +39,8 @@ class PropertyController extends Controller
 
         // Also assign user_id for owner relationship
         $data['user_id'] = Auth::id();
-
+        
+        $data['owner_id'] = Auth::id() ?? 0;
         $property = Property::create($data);
 
         // Store images
